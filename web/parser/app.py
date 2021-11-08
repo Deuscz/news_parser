@@ -14,7 +14,7 @@ class Source(db.Model):
 
 class Article(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    url_id = db.Column(db.Integer, db.ForeignKey('source.id'))
+    url_id = db.Column(db.Integer, db.ForeignKey("source.id"))
     category = db.Column(db.String)
     title = db.Column(db.String)
     published_date = db.Column(db.Date)
@@ -23,4 +23,4 @@ class Article(db.Model):
 
 @app.route("/")
 def index():
-    return jsonify(index='index')
+    return jsonify(index="index")
