@@ -21,4 +21,6 @@ SQLAlchemy==1.4.26
 typing-extensions==3.10.0.2
 Werkzeug==2.0.2
 psycopg2==2.7.7
+pylint==2.11.1
 yarl==1.7.2
+black==21.10b0

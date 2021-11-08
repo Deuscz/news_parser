@@ -6,10 +6,10 @@ import time
 
 Feed = namedtuple('Feed', ['title', 'link', 'publish_date'])
 
-# urls = ['http://feeds.bbci.co.uk/news/world/rss.xml',
-#         'https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/world/rss.xml',
-#         'https://www.aljazeera.com/xml/rss/all.xml']
-urls = ['https://xml.euobserver.com/rss.xml']
+urls = ['http://feeds.bbci.co.uk/news/world/rss.xml',
+        'https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/world/rss.xml',
+        'https://www.aljazeera.com/xml/rss/all.xml']
+# urls = ['https://xml.euobserver.com/rss.xml']
 
 async def parse(url):
     news_list = []
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     loop = asyncio.get_event_loop()
     for url in urls:
         loop.create_task(parse(url))
-    tasks = asyncio.all_tasks(loop=loop)
+    tasks = asyncio.Task.all_tasks(loop=loop)
     group = asyncio.gather(*tasks, return_exceptions=True)
     loop.run_until_complete(group)
     loop.close()
