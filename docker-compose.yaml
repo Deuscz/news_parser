@@ -4,6 +4,7 @@ services:
     build: ./web
     container_name: 'flask_app'
     command: python manage.py run -h 0.0.0.0
+    restart: always
     environment:
         - FLASK_APP=parser/app.py
         - FLASK_ENV=development
@@ -14,7 +15,7 @@ services:
     ports:
         - "5000:5000"
     volumes:
-        - ./web:/web
+        - ./web:/app
     networks:
         - rabbitmq_flask
     depends_on:

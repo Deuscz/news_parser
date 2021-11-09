@@ -1,53 +1,64 @@
+import datetime
+
 import feedparser
 import asyncio
 import aiohttp
-from collections import namedtuple
 import time
-
-Feed = namedtuple("Feed", ["title", "link", "publish_date"])
-
-urls = [
-    "http://feeds.bbci.co.uk/news/world/rss.xml",
-    "https://www.nytimes.com/svc/collections/v1/publish/https://www.nytimes.com/section/world/rss.xml",
-    "https://www.aljazeera.com/xml/rss/all.xml",
-]
+from parser.app import db
+from parser.models import Source, Article
+import json
+import os
 
 
-# urls = ['https://xml.euobserver.com/rss.xml']
+def sport_to_json():
+    """
+    Saves today's sport articles to json format
+    :return:
+    """
+    date_today = datetime.date.today()
+    filename = 'sport_' + date_today.strftime("%Y_%m_%d") + '.json'
+    data = [article.as_dict() for article in
+            Article.query.filter_by(category='sport', published_date=date_today)]
+    if not os.path.exists('sport_files'):
+        os.makedirs('sport_files')
+    with open('sport_files/' + filename, 'w') as f:
+        json.dump(data, f)
 
 
-async def parse(url):
+async def parse(source):
     """
     Parses news RSS feed
     :param url:
     :return:
     """
-    news_list = []
     async with aiohttp.ClientSession() as session:
-        async with session.get(url) as resp:
+        async with session.get(source.url) as resp:
             feed = await resp.text()
     data = feedparser.parse(feed)
     for entry in data.entries:
-        news_list.append(
-            Feed(title=entry.title, link=entry.link, publish_date=entry.published)
-        )
-    return news_list
+        article = Article(url_id=source.id, category=source.category, title=entry.title, published_date=entry.published)
+        db.session.add(article)
+        db.session.commit()
 
 
-if __name__ == "__main__":
+def run_parse():
     t1 = time.time()
-    loop = asyncio.get_event_loop()
-    for url in urls:
-        loop.create_task(parse(url))
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    source_list = Source.query.all()
+    for source in source_list:
+        loop.create_task(parse(source))
     tasks = asyncio.Task.all_tasks(loop=loop)
     group = asyncio.gather(*tasks, return_exceptions=True)
     loop.run_until_complete(group)
     loop.close()
+
+    articles = Article.query.all()
+    for article in articles:
+        print("-" * 100)
+        print("{}".format(article.title))
+        print("Published at {}".format(article.published_date))
+        print("-" * 100)
+    sport_to_json()
     t2 = time.time()
-    for task_result in group.result():
-        for feed in task_result:
-            print("-" * 100)
-            print("{}[{}]".format(feed.title, feed.link))
-            print("Published at {}".format(feed.publish_date))
-            print("-" * 100)
     print(f"Spent time: {t2 - t1}")
