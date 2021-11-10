@@ -1,48 +1,33 @@
-import datetime
-
-import feedparser
-import asyncio
-import aiohttp
-import time
-from parser.app import db
 from parser.models import Source, Article
-import json
-import os
-
-
-def sport_to_json():
-    """
-    Saves today's sport articles to json format
-    :return:
-    """
-    date_today = datetime.date.today()
-    filename = 'sport_' + date_today.strftime("%Y_%m_%d") + '.json'
-    data = [article.as_dict() for article in
-            Article.query.filter_by(category='sport', published_date=date_today)]
-    if not os.path.exists('sport_files'):
-        os.makedirs('sport_files')
-    with open('sport_files/' + filename, 'w') as f:
-        json.dump(data, f)
+import json, pika, asyncio, aiohttp, feedparser
 
 
 async def parse(source):
     """
     Parses news RSS feed
-    :param url:
+    :param source:
     :return:
     """
     async with aiohttp.ClientSession() as session:
         async with session.get(source.url) as resp:
             feed = await resp.text()
     data = feedparser.parse(feed)
+    result_list = []
     for entry in data.entries:
-        article = Article(url_id=source.id, category=source.category, title=entry.title, published_date=entry.published)
-        db.session.add(article)
-        db.session.commit()
+        article = [
+            source.id,
+            source.category,
+            entry.title,
+            entry.published]
+        result_list.append(article)
+    return source.category, result_list
 
 
 def run_parse():
-    t1 = time.time()
+    """
+    Starts RSS feed parsing and sends messages to rabbitmq queues
+    :return:
+    """
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     source_list = Source.query.all()
@@ -52,13 +37,33 @@ def run_parse():
     group = asyncio.gather(*tasks, return_exceptions=True)
     loop.run_until_complete(group)
     loop.close()
+    sport_list = []
+    health_list = []
+    politics_list = []
+    for category, article_list in group.result():
+        if category == 'sport':
+            sport_list += article_list
+        elif category == 'health':
+            health_list += article_list
+        elif category == 'politics':
+            politics_list += article_list
+    send_mq('sport', json.dumps(sport_list))
+    send_mq('health', json.dumps(health_list))
+    send_mq('politics', json.dumps(politics_list))
 
-    articles = Article.query.all()
-    for article in articles:
-        print("-" * 100)
-        print("{}".format(article.title))
-        print("Published at {}".format(article.published_date))
-        print("-" * 100)
-    sport_to_json()
-    t2 = time.time()
-    print(f"Spent time: {t2 - t1}")
+
+def send_mq(queue, message):
+    """
+    Establishs connection to rabbitmq queue and sends message
+    :param queue:
+    :param message:
+    :return:
+    """
+    connection = pika.BlockingConnection(
+        pika.ConnectionParameters(host='rabbitmq'))
+    channel = connection.channel()
+
+    channel.queue_declare(queue=queue)
+
+    channel.basic_publish(exchange='', routing_key=queue, body=message)
+    connection.close()

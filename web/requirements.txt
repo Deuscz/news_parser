@@ -24,3 +24,4 @@ psycopg2==2.7.7
 pylint==2.11.1
 yarl==1.7.2
 black==21.10b0
+pika==1.2.0

@@ -4,7 +4,7 @@ services:
     build: ./web
     container_name: 'flask_app'
     command: python manage.py run -h 0.0.0.0
-    restart: always
+    restart: on-failure
     environment:
         - FLASK_APP=parser/app.py
         - FLASK_ENV=development
@@ -63,7 +63,27 @@ services:
           memory: 1G
     networks:
       - rabbitmq_flask
-
+  consumer:
+    build: ./web
+    container_name: 'flask_consumer'
+    command: python manage.py start_consume
+    restart: on-failure
+    environment:
+        - FLASK_APP=parser/app.py
+        - FLASK_ENV=development
+        - DATABASE_URL=postgresql://postgres:postgres@db:5432/flask_postgres
+        - SQL_HOST=db
+        - SQL_PORT=5432
+        - DATABASE=postgres
+    volumes:
+        - ./web:/app
+    networks:
+        - rabbitmq_flask
+    links:
+        - rabbitmq
+    depends_on:
+        - db
+        - rabbitmq
 networks:
   rabbitmq_flask:
     driver: bridge
