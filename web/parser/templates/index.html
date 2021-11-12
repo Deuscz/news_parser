@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mr-2 btn-group" role="group" aria-label="Basic example" style="margin-left: 5ex">
+    <form action="" , method="post">
+        <button type="submit" class="mr-2 btn btn-primary" style="margin-right: 1ex">Parse Articles</button>
+    </form>
+    <a href="{{ url_for('articles_list') }}">
+        <button type="submit" class="btn btn-info" style="margin-left: 1ex">Show Articles</button>
+    </a>
+</div>
+{% endblock %}

@@ -1,5 +1,6 @@
 from parser.models import Source, Article
 import json, pika, asyncio, aiohttp, feedparser
+from apscheduler.schedulers.background import BackgroundScheduler
 
 
 async def parse(source):
@@ -14,11 +15,7 @@ async def parse(source):
     data = feedparser.parse(feed)
     result_list = []
     for entry in data.entries:
-        article = [
-            source.id,
-            source.category,
-            entry.title,
-            entry.published]
+        article = [source.id, source.category, entry.title, entry.published]
         result_list.append(article)
     return source.category, result_list
 
@@ -41,15 +38,20 @@ def run_parse():
     health_list = []
     politics_list = []
     for category, article_list in group.result():
-        if category == 'sport':
+        if category == "sport":
             sport_list += article_list
-        elif category == 'health':
+        elif category == "health":
             health_list += article_list
-        elif category == 'politics':
+        elif category == "politics":
             politics_list += article_list
-    send_mq('sport', json.dumps(sport_list))
-    send_mq('health', json.dumps(health_list))
-    send_mq('politics', json.dumps(politics_list))
+    send_mq("sport", json.dumps(sport_list))
+    send_mq("health", json.dumps(health_list))
+    send_mq("politics", json.dumps(politics_list))
+
+
+# scheduler = BackgroundScheduler(daemon=True)
+# scheduler.add_job(func=run_parse, trigger="interval", seconds=30)
+# scheduler.start()
 
 
 def send_mq(queue, message):
@@ -59,11 +61,10 @@ def send_mq(queue, message):
     :param message:
     :return:
     """
-    connection = pika.BlockingConnection(
-        pika.ConnectionParameters(host='rabbitmq'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host="rabbitmq"))
     channel = connection.channel()
 
     channel.queue_declare(queue=queue)
 
-    channel.basic_publish(exchange='', routing_key=queue, body=message)
+    channel.basic_publish(exchange="", routing_key=queue, body=message)
     connection.close()

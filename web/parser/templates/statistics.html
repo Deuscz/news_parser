@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if db_statistics or file_statistics%}
+<div style="margin: 5ex">
+    <div><h3>Database sources statistics</h3></div>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">URL</th>
+            <th scope="col">Health articles</th>
+            <th scope="col">Politics articles</th>
+            <th scope="col">Last news date</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for source in db_statistics %}
+        <tr>
+            <td>{{source.source_url}}</td>
+            <td>{{source.health_articles}}</td>
+            <td>{{source.politics_articles}}</td>
+            <td>{{source.last_news_date}}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <div><h3>Sport files statistics</h3></div>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">Number of files</th>
+            <th scope="col">Start Date</th>
+            <th scope="col">End Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>{{file_statistics.number_of_files}}</td>
+            <td>{{file_statistics.min_date}}</td>
+            <td>{{file_statistics.max_date}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}
