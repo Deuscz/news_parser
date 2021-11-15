@@ -16,7 +16,9 @@ class Article(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     url_id = db.Column(db.Integer, db.ForeignKey("source.id"))
-    source = db.relationship('Source', backref=db.backref('artcle_current', uselist=False))
+    source = db.relationship(
+        "Source", backref=db.backref("artcle_current", uselist=False)
+    )
     category = db.Column(db.String)
     title = db.Column(db.String, unique=True)
     published_date = db.Column(db.Date)

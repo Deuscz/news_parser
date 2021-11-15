@@ -47,6 +47,18 @@ create_db:
 load_init_db:
 	sudo docker exec -it flask_app python3 manage.py load_init_db
 
+run_parse:
+	sudo docker exec -it flask_app python3 manage.py run_parse
+
+
+test_empty: create_db load_init_db
+	sudo docker exec -it flask_app pytest parser/tests.py -v -m empty
+
+test_not_empty: run_parse
+	sudo sleep 5
+	sudo docker exec -it flask_app pytest parser/tests.py -v -m "not empty"
+
+test: test_empty test_not_empty
 
 file_access:
 	sudo chmod -R a+w web

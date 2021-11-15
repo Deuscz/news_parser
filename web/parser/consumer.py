@@ -5,6 +5,7 @@ from parser.models import Source, Article
 import json
 import os
 from sqlalchemy.exc import IntegrityError, PendingRollbackError
+from multiprocessing import Process
 
 date_formats = [
     "%a, %d %b %Y %H:%M:%S",
@@ -76,29 +77,21 @@ def save_articles_to_db(ch, method, properties, body):
             continue
 
 
-def consumer():
-    """
-    Declares rabbitmq queues
-    :return:
-    """
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host="rabbitmq"))
-    channel = connection.channel()
+class ConsumerFabric:
+    def __init__(self, queue='sport', callback=sport_to_json, b='b1', e='e1'):
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host="rabbitmq"))
+        self.channel = self.connection.channel()
+        self.channel.exchange_declare(exchange=e, durable='true')
+        result = self.channel.queue_declare(queue=queue, durable='false')
+        queue_name = result.method.queue
+        binding_key = b
+        self.channel.queue_bind(exchange=e, queue=queue_name, routing_key=binding_key)
+        self.channel.basic_consume(
+            queue=queue, on_message_callback=callback, auto_ack=True
+        )
 
-    channel.queue_declare(queue="sport")
-    channel.queue_declare(queue="health")
-    channel.queue_declare(queue="politics")
-    channel.basic_consume(
-        queue="sport", on_message_callback=sport_to_json, auto_ack=True
-    )
-    channel.basic_consume(
-        queue="health", on_message_callback=save_articles_to_db, auto_ack=True
-    )
-    channel.basic_consume(
-        queue="politics", on_message_callback=save_articles_to_db, auto_ack=True
-    )
-
-    print(" [*] Waiting for messages. To exit press CTRL+C")
-    channel.start_consuming()
+    def run(self):
+        self.channel.start_consuming()
 
 
 def main():
@@ -107,10 +100,63 @@ def main():
     :return:
     """
     try:
-        consumer()
+        subscriber_list = []
+        subscriber_list.append(ConsumerFabric(queue='sport', callback=sport_to_json, b='b1', e='e1'))
+        subscriber_list.append(ConsumerFabric(queue='health', callback=save_articles_to_db, b='b2', e='e2'))
+        subscriber_list.append(ConsumerFabric(queue='politics', callback=save_articles_to_db, b='b3', e='e3'))
+
+        # execute
+        process_list = []
+        for sub in subscriber_list:
+            process = Process(target=sub.run)
+            process.start()
+            process_list.append(process)
+
+        # wait for all process to finish
+        for process in process_list:
+            process.join()
     except KeyboardInterrupt:
         print("Interrupted")
         try:
             sys.exit(0)
         except SystemExit:
             os._exit(0)
+
+# def consumer():
+#     """
+#     Declares rabbitmq queues
+#     :return:
+#     """
+#     connection = pika.BlockingConnection(pika.ConnectionParameters(host="rabbitmq"))
+#     channel = connection.channel()
+#
+#     channel.queue_declare(queue="sport")
+#     channel.queue_declare(queue="health")
+#     channel.queue_declare(queue="politics")
+#     channel.basic_consume(
+#         queue="sport", on_message_callback=sport_to_json, auto_ack=True
+#     )
+#     channel.basic_consume(
+#         queue="health", on_message_callback=save_articles_to_db, auto_ack=True
+#     )
+#     channel.basic_consume(
+#         queue="politics", on_message_callback=save_articles_to_db, auto_ack=True
+#     )
+#
+#     print(" [*] Waiting for messages. To exit press CTRL+C")
+#     channel.start_consuming()
+
+
+# def main():
+#     """
+#     Starts consuming rabbitmq messages
+#     :return:
+#     """
+#     try:
+#         consumer()
+#     except KeyboardInterrupt:
+#         print("Interrupted")
+#         try:
+#             sys.exit(0)
+#         except SystemExit:
+#             os._exit(0)

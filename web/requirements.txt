@@ -26,3 +26,4 @@ yarl==1.7.2
 black==21.10b0
 pika==1.2.0
 APScheduler==3.8.1
+pytest==6.2.5

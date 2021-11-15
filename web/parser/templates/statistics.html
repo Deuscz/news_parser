@@ -3,6 +3,7 @@
 {% block content %}
 {% if db_statistics or file_statistics%}
 <div style="margin: 5ex">
+    {% if db_statistics %}
     <div><h3>Database sources statistics</h3></div>
     <table class="table table-striped">
         <thead>
@@ -24,6 +25,9 @@
         {% endfor %}
         </tbody>
     </table>
+    {% else %}
+    <h3>There is no records in database</h3>
+    {% endif %}
     <div><h3>Sport files statistics</h3></div>
     <table class="table table-striped">
         <thead>
