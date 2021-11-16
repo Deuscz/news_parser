@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-{% if articles or sport_articles%}
+{% if articles or sport_articles %}
 <div style="margin: 5ex">
     <table class="table table-striped">
         <thead>
@@ -32,5 +32,7 @@
         </tbody>
     </table>
 </div>
+{% else %}
+<h3>There are no articles for today yet</h3>
 {% endif %}
 {% endblock %}

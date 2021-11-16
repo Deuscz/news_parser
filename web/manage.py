@@ -92,6 +92,7 @@ def start_consume():
 def send_consume():
     send_mq()
 
+
 @cli.command("run_parse")
 def send_consume():
     run_parse()
