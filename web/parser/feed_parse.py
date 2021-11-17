@@ -3,9 +3,9 @@ import json, pika, asyncio, aiohttp, feedparser
 from apscheduler.schedulers.background import BackgroundScheduler
 
 
-async def parse(source):
+async def parse(source: Source) -> (str, list):
     """
-    Parses news RSS feed
+    Parses news RSS feed.
     :param source:
     :return:
     """
@@ -20,9 +20,9 @@ async def parse(source):
     return source.category, result_list
 
 
-def run_parse():
+def run_parse() -> None:
     """
-    Starts RSS feed parsing and sends messages to rabbitmq queues
+    Starts RSS feed parsing and sends messages to rabbitmq queues.
     :return:
     """
     loop = asyncio.new_event_loop()
@@ -54,9 +54,9 @@ def run_parse():
 # scheduler.start()
 
 
-def send_mq(queue, message):
+def send_mq(queue: str, message: str) -> None:
     """
-    Establishs connection to rabbitmq queue and sends message
+    Establishs connection to rabbitmq queue and sends message.
     :param queue:
     :param message:
     :return:

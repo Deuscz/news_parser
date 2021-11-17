@@ -15,9 +15,9 @@ date_formats = [
 ]
 
 
-def sport_to_json(ch, method, properties, body):
+def sport_to_json(ch, method, properties, body: str) -> None:
     """
-    Saves today's sport articles to json format
+    Saves today's sport articles to json format.
     :param ch:
     :param method:
     :param properties:
@@ -51,9 +51,9 @@ def sport_to_json(ch, method, properties, body):
         json.dump(data, f)
 
 
-def save_articles_to_db(ch, method, properties, body):
+def save_articles_to_db(ch, method, properties, body: str) -> None:
     """
-    Saves health and politics articles to database
+    Saves health and politics articles to database.
     :param ch:
     :param method:
     :param properties:
@@ -77,7 +77,11 @@ def save_articles_to_db(ch, method, properties, body):
             continue
 
 
-class ConsumerFabric:
+class ConsumerFactory:
+    """
+    Class-factory for consumer definition.
+    """
+
     def __init__(self, queue="sport", callback=sport_to_json, b="b1", e="e1"):
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(host="rabbitmq")
@@ -96,7 +100,7 @@ class ConsumerFabric:
         self.channel.start_consuming()
 
 
-def main():
+def main() -> None:
     """
     Starts consuming rabbitmq messages
     :return:
@@ -104,13 +108,15 @@ def main():
     try:
         subscriber_list = []
         subscriber_list.append(
-            ConsumerFabric(queue="sport", callback=sport_to_json, b="b1", e="e1")
+            ConsumerFactory(queue="sport", callback=sport_to_json, b="b1", e="e1")
         )
         subscriber_list.append(
-            ConsumerFabric(queue="health", callback=save_articles_to_db, b="b2", e="e2")
+            ConsumerFactory(queue="health", callback=save_articles_to_db, b="b2", e="e2")
         )
         subscriber_list.append(
-            ConsumerFabric(queue="politics", callback=save_articles_to_db, b="b3", e="e3")
+            ConsumerFactory(
+                queue="politics", callback=save_articles_to_db, b="b3", e="e3"
+            )
         )
 
         # execute

@@ -13,7 +13,7 @@ class TestViews:
 
     def test_articles_page(self):
         with app.test_client() as test_client:
-            response = test_client.get("/articles_list")
+            response = test_client.get("/")
             assert response.status_code == 200
             assert b"Category" in response.data
 
@@ -27,7 +27,7 @@ class TestViews:
     @pytest.mark.empty
     def test_empty_articles_page(self):
         with app.test_client() as test_client:
-            response = test_client.get("/articles_list")
+            response = test_client.get("/")
             assert response.status_code == 200
             assert b"Politics" not in response.data
 

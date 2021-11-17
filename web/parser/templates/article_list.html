@@ -1,38 +1,62 @@
 {% extends 'base.html' %}
 
+
 {% block content %}
-{% if articles or sport_articles %}
 <div style="margin: 5ex">
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th scope="col">Name, url</th>
-            <th scope="col">Category</th>
-            <th scope="col">Title</th>
-            <th scope="col">Published</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for article in articles %}
-        <tr>
-            <td><a href="{{ article.source.url }}">{{article.source.name}}</a></td>
-            <td>{{article.category}}</td>
-            <td>{{article.title}}</td>
-            <td>{{article.published_date}}</td>
-        </tr>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    {% if category == 'message' %}
+    <div class="alert alert-warning" role="alert">
+        {% else %}
+        <div class="alert alert-{{ category }}" role="alert">
+            {% endif %}
+            {{ message }}
+        </div>
         {% endfor %}
-        {% for article in sport_articles %}
-        <tr>
-            <td><a href="{{ article.url }}">{{article.source_name}}</a></td>
-            <td>{{article.category}}</td>
-            <td>{{article.title}}</td>
-            <td>{{article.published_date}}</td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% else %}
-<h3>There are no articles for today yet</h3>
-{% endif %}
-{% endblock %}
+        {% endif %}
+        {% endwith %}
+    </div>
+    <div class="mr-2 btn-group" role="group" aria-label="Basic example" style="margin-left: 5ex">
+        <form action="" , method="post">
+            <button type="submit" class="mr-2 btn btn-primary" style="margin-right: 1ex">Parse Articles</button>
+        </form>
+        <a href="{{ url_for('articles_list') }}">
+            <button type="submit" class="btn btn-info" style="margin-left: 1ex">Check News</button>
+        </a>
+    </div>
+    {% if articles or sport_articles %}
+    <div style="margin: 5ex">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th scope="col">Name, url</th>
+                <th scope="col">Category</th>
+                <th scope="col">Title</th>
+                <th scope="col">Published</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for article in articles %}
+            <tr>
+                <td><a href="{{ article.source.source_link }}">{{article.source.name}}</a></td>
+                <td>{{article.category}}</td>
+                <td>{{article.title}}</td>
+                <td>{{article.published_date}}</td>
+            </tr>
+            {% endfor %}
+            {% for article in sport_articles %}
+            <tr>
+                <td><a href="{{ article.url }}">{{article.source_name}}</a></td>
+                <td>{{article.category}}</td>
+                <td>{{article.title}}</td>
+                <td>{{article.published_date}}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <h3>There are no articles for today yet</h3>
+    {% endif %}
+    {% endblock %}

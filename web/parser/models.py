@@ -9,6 +9,7 @@ class Source(db.Model):
     url = db.Column(db.String, unique=True)
     category = db.Column(db.String)
     name = db.Column(db.String)
+    source_link = db.Column(db.String)
 
 
 class Article(db.Model):

@@ -1,17 +1,22 @@
 import datetime
-from flask import Flask, jsonify, request, render_template, redirect
+from flask import Flask, jsonify, request, render_template, redirect, flash, session
 from parser.config import db, app
 from .feed_parse import run_parse
 from parser.models import Source, Article
-from parser.utils import reformat_str_data
+from parser.utils import get_statistics_from_db, reformat_str_data
 import json
 from os import listdir
 from os.path import isfile, join
-from sqlalchemy import desc
 
 
-@app.route("/articles_list", methods=["GET"])
+@app.route("/", methods=["GET", "POST"])
 def articles_list():
+    flash('To start parsing press "Parse Articles"')
+    if request.method == "POST":
+        run_parse()
+        session.pop('_flashes', None)
+        flash('Parsing complete!', category='success')
+        return redirect("/")
     articles = Article.query.join(Source).filter(
         Article.published_date == datetime.date.today()
     )
@@ -22,7 +27,7 @@ def articles_list():
             for article in sport_articles:
                 source = Source.query.filter_by(id=article["url_id"]).first()
                 article["source_name"] = source.name
-                article["url"] = source.url
+                article["url"] = source.source_link
     except OSError:
         sport_articles = []
     return render_template(
@@ -30,43 +35,9 @@ def articles_list():
     )
 
 
-@app.route("/", methods=["GET", "POST"])
-def index():
-    if request.method == "POST":
-        run_parse()
-        return redirect("/")
-    return render_template("index.html")
-
-
 @app.route("/statistics", methods=["GET"])
 def statistics():
-    db_statistics = []
-    for source in Source.query.filter(Source.category.in_(("health", "politics"))):
-        health_articles = list(
-            Article.query.filter(
-                Article.url_id == source.id, Article.category == "health"
-            )
-        )
-        politics_articles = list(
-            Article.query.filter(
-                Article.url_id == source.id, Article.category == "politics"
-            )
-        )
-        last_news_date = (
-            Article.query.filter(Article.url_id == source.id)
-            .order_by(desc(Article.published_date))
-            .first()
-        )
-        if last_news_date:
-            db_statistics.append(
-                {
-                    "source_url": source.url,
-                    "health_articles": len(health_articles),
-                    "politics_articles": len(politics_articles),
-                    "last_news_date": last_news_date.published_date,
-                }
-            )
-
+    db_statistics = get_statistics_from_db()
     try:
         files = [
             f.split("_")[1][:-4]
