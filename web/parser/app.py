@@ -3,19 +3,25 @@ from flask import Flask, jsonify, request, render_template, redirect, flash, ses
 from parser.config import db, app
 from .feed_parse import run_parse
 from parser.models import Source, Article
+from parser.forms import NewsForm
 from parser.utils import get_statistics_from_db, reformat_str_data
+from sqlalchemy.exc import IntegrityError, PendingRollbackError
 import json
 from os import listdir
 from os.path import isfile, join
 
 
 @app.route("/", methods=["GET", "POST"])
-def articles_list():
+def articles_list() -> str:
+    """
+    Render all articles for today.
+    :return:
+    """
     flash('To start parsing press "Parse Articles"')
     if request.method == "POST":
         run_parse()
-        session.pop('_flashes', None)
-        flash('Parsing complete!', category='success')
+        session.pop("_flashes", None)
+        flash("Parsing complete!", category="success")
         return redirect("/")
     articles = Article.query.join(Source).filter(
         Article.published_date == datetime.date.today()
@@ -36,7 +42,11 @@ def articles_list():
 
 
 @app.route("/statistics", methods=["GET"])
-def statistics():
+def statistics() -> str:
+    """
+    Render source news statistics.
+    :return:
+    """
     db_statistics = get_statistics_from_db()
     try:
         files = [
@@ -57,3 +67,25 @@ def statistics():
     return render_template(
         "statistics.html", db_statistics=db_statistics, file_statistics=file_statistics
     )
+
+
+@app.route("/add_news", methods=["GET", "POST"])
+def add_news() -> str:
+    """
+    View to add new news source.
+    :return:
+    """
+    form = NewsForm(request.form)
+    if request.method == "POST":
+        if form.validate():
+            try:
+                source = Source(name=form.name.data, url=form.url.data, source_link=form.source_link.data,
+                                category=form.category.data)
+                db.session.add(source)
+                db.session.commit()
+                flash('Source was added successfully!', category="success")
+            except (IntegrityError, PendingRollbackError):
+                db.session.rollback()
+                flash('Source is already in database!')
+        return render_template("add_news.html", form=form)
+    return render_template("add_news.html", form=form)

@@ -69,15 +69,30 @@ sport_urls = [
 @cli.command("load_init_db")
 def load_init_db():
     for url in politic_urls:
-        s = Source(url=url["url"], name=url["name"], source_link=url["source_link"], category="politics")
+        s = Source(
+            url=url["url"],
+            name=url["name"],
+            source_link=url["source_link"],
+            category="politics",
+        )
         db.session.add(s)
         db.session.commit()
     for url in health_urls:
-        s = Source(url=url["url"], name=url["name"], source_link=url["source_link"], category="health")
+        s = Source(
+            url=url["url"],
+            name=url["name"],
+            source_link=url["source_link"],
+            category="health",
+        )
         db.session.add(s)
         db.session.commit()
     for url in sport_urls:
-        s = Source(url=url["url"], name=url["name"], source_link=url["source_link"], category="sport")
+        s = Source(
+            url=url["url"],
+            name=url["name"],
+            source_link=url["source_link"],
+            category="sport",
+        )
         db.session.add(s)
         db.session.commit()
 

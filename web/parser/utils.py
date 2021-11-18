@@ -31,13 +31,17 @@ def get_statistics_from_db() -> list:
     :return:
     """
     db_statistics = []
-    for s in Source.query.filter(Source.category.in_(("health", "politics"))).distinct(Source.source_link):
+    for s in Source.query.filter(Source.category.in_(("health", "politics"))).distinct(
+        Source.source_link
+    ):
         num_of_health_articles = 0
         num_of_politics_articles = 0
-        last_health_date = ''
-        last_politics_date = ''
-        for source in Source.query.filter(Source.category.in_(("health", "politics")),
-                                          Source.source_link == s.source_link):
+        last_health_date = ""
+        last_politics_date = ""
+        for source in Source.query.filter(
+            Source.category.in_(("health", "politics")),
+            Source.source_link == s.source_link,
+        ):
             health_articles = list(
                 Article.query.filter(
                     Article.url_id == source.id, Article.category == "health"
@@ -54,18 +58,21 @@ def get_statistics_from_db() -> list:
                 num_of_politics_articles = len(politics_articles)
             last_news_date = (
                 Article.query.filter(Article.url_id == source.id)
-                    .order_by(desc(Article.published_date))
-                    .first()
+                .order_by(desc(Article.published_date))
+                .first()
             )
-            if last_news_date and source.category == 'health':
+            if last_news_date and source.category == "health":
                 last_health_date = date_to_str(last_news_date.published_date)
-            elif last_news_date and source.category == 'politics':
+            elif last_news_date and source.category == "politics":
                 last_politics_date = date_to_str(last_news_date.published_date)
         db_statistics.append(
             {
                 "source_url": s.source_link,
                 "health_articles": num_of_health_articles,
                 "politics_articles": num_of_politics_articles,
-                "last_news_date": last_health_date if last_health_date > last_politics_date else last_politics_date,
-            })
+                "last_news_date": last_health_date
+                if last_health_date > last_politics_date
+                else last_politics_date,
+            }
+        )
     return db_statistics

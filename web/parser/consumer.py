@@ -7,6 +7,7 @@ import os
 from sqlalchemy.exc import IntegrityError, PendingRollbackError
 from multiprocessing import Process
 
+
 date_formats = [
     "%a, %d %b %Y %H:%M:%S",
     "%a, %d %B %Y %H:%M:%S",
@@ -111,7 +112,9 @@ def main() -> None:
             ConsumerFactory(queue="sport", callback=sport_to_json, b="b1", e="e1")
         )
         subscriber_list.append(
-            ConsumerFactory(queue="health", callback=save_articles_to_db, b="b2", e="e2")
+            ConsumerFactory(
+                queue="health", callback=save_articles_to_db, b="b2", e="e2"
+            )
         )
         subscriber_list.append(
             ConsumerFactory(

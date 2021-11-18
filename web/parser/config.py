@@ -10,9 +10,11 @@ class Config(object):
     """
     Config for flask project.
     """
+
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite://")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SECRET_KEY = 'secret_key'
+    SECRET_KEY = "secret_key"
+
 
 app = Flask(__name__)
 app.config.from_object(Config)

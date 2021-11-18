@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+{% from "_formhelpers.html" import render_errors %}
+<div style="margin: 5ex">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    {% if category == 'message' %}
+    <div class="alert alert-warning" role="alert">
+        {% else %}
+        <div class="alert alert-{{ category }}" role="alert">
+            {% endif %}
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+</div>
+<div style="margin: 5ex">
+    <form method='post'>
+        <div>{{ form.csrf_token() }}</div>
+        <div class="form-group mb-2">
+            <label>Name of source</label>
+            <input type="text" class="form-control" name="name" placeholder="name" , required="True">
+            {{ render_errors(form.name) }}
+        </div>
+        <div class="form-group mb-2">
+            <label>Link to RSS feed</label>
+            <input type="text" class="form-control" name="url" placeholder="link" , required="True">
+            {{ render_errors(form.url) }}
+        </div>
+        <div class="form-group mb-2">
+            <label>Link to source</label>
+            <input type="text" class="form-control" name="source_link" placeholder="source link" , required="True">
+            {{ render_errors(form.source_link) }}
+        </div>
+        <div class="form-group mb-2">
+            <label>Category</label>
+            <select class="form-control" name="category">
+                {% for key, value, checked in form.category.iter_choices() %}
+                <option>{{ value }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary mb-2">Confirm</button>
+    </form>
+</div>
+{% endblock %}

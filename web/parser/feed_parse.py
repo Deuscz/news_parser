@@ -49,11 +49,6 @@ def run_parse() -> None:
     send_mq("politics", json.dumps(politics_list))
 
 
-# scheduler = BackgroundScheduler(daemon=True)
-# scheduler.add_job(func=run_parse, trigger="interval", seconds=30)
-# scheduler.start()
-
-
 def send_mq(queue: str, message: str) -> None:
     """
     Establishs connection to rabbitmq queue and sends message.
