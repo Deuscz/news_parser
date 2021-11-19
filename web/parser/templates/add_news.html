@@ -21,7 +21,9 @@
 </div>
 <div style="margin: 5ex">
     <form method='post'>
-        <div>{{ form.csrf_token() }}</div>
+        {% if 'csrf_token' in form %}
+        {{form.csrf_token}}
+        {% endif %}
         <div class="form-group mb-2">
             <label>Name of source</label>
             <input type="text" class="form-control" name="name" placeholder="name" , required="True">

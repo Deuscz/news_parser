@@ -23,7 +23,9 @@ class Article(db.Model):
     category = db.Column(db.String, nullable=False)
     title = db.Column(db.String, unique=True, nullable=False)
     published_date = db.Column(db.Date, nullable=False)
-    created_date = db.Column(db.DateTime, default=datetime.datetime.now(), nullable=False)
+    created_date = db.Column(
+        db.DateTime, default=datetime.datetime.now(), nullable=False
+    )
 
     def as_dict(self):
         return {

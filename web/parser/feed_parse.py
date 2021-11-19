@@ -1,13 +1,10 @@
 from parser.models import Source, Article
 import json, pika, asyncio, aiohttp, feedparser
-from apscheduler.schedulers.background import BackgroundScheduler
 
 
 async def parse(source: Source) -> (str, list):
     """
     Parses news RSS feed.
-    :param source:
-    :return:
     """
     async with aiohttp.ClientSession() as session:
         async with session.get(source.url) as resp:
@@ -23,7 +20,6 @@ async def parse(source: Source) -> (str, list):
 def run_parse() -> None:
     """
     Starts RSS feed parsing and sends messages to rabbitmq queues.
-    :return:
     """
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -52,9 +48,6 @@ def run_parse() -> None:
 def send_mq(queue: str, message: str) -> None:
     """
     Establishs connection to rabbitmq queue and sends message.
-    :param queue:
-    :param message:
-    :return:
     """
     connection = pika.BlockingConnection(pika.ConnectionParameters(host="rabbitmq"))
     channel = connection.channel()

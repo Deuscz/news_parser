@@ -15,7 +15,6 @@ from os.path import isfile, join
 def articles_list() -> str:
     """
     Render all articles for today.
-    :return:
     """
     flash('To start parsing press "Parse Articles"')
     if request.method == "POST":
@@ -45,7 +44,6 @@ def articles_list() -> str:
 def statistics() -> str:
     """
     Render source news statistics.
-    :return:
     """
     db_statistics = get_statistics_from_db()
     try:
@@ -73,19 +71,23 @@ def statistics() -> str:
 def add_news() -> str:
     """
     View to add new news source.
-    :return:
     """
     form = NewsForm(request.form)
     if request.method == "POST":
         if form.validate():
             try:
-                source = Source(name=form.name.data, url=form.url.data, source_link=form.source_link.data,
-                                category=form.category.data)
+
+                source = Source(
+                    name=form.name.data,
+                    url=form.url.data,
+                    source_link=form.source_link.data,
+                    category=form.category.data,
+                )
                 db.session.add(source)
                 db.session.commit()
-                flash('Source was added successfully!', category="success")
+                flash("Source was added successfully!", category="success")
             except (IntegrityError, PendingRollbackError):
                 db.session.rollback()
-                flash('Source is already in database!')
+                flash("Source is already in database!")
         return render_template("add_news.html", form=form)
     return render_template("add_news.html", form=form)

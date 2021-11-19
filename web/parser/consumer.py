@@ -19,11 +19,6 @@ date_formats = [
 def sport_to_json(ch, method, properties, body: str) -> None:
     """
     Saves today's sport articles to json format.
-    :param ch:
-    :param method:
-    :param properties:
-    :param body:
-    :return:
     """
     date_today = datetime.date.today()
     filename = "sport_" + date_today.strftime("%Y-%m-%d") + ".txt"
@@ -55,11 +50,6 @@ def sport_to_json(ch, method, properties, body: str) -> None:
 def save_articles_to_db(ch, method, properties, body: str) -> None:
     """
     Saves health and politics articles to database.
-    :param ch:
-    :param method:
-    :param properties:
-    :param body:
-    :return:
     """
     articles = json.loads(body)
     for article in articles:
@@ -104,7 +94,6 @@ class ConsumerFactory:
 def main() -> None:
     """
     Starts consuming rabbitmq messages
-    :return:
     """
     try:
         subscriber_list = []
