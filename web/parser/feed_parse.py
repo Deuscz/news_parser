@@ -1,5 +1,10 @@
-from parser.models import Source, Article
-import json, pika, asyncio, aiohttp, feedparser
+import asyncio
+import json
+from parser.models import Source
+
+import aiohttp
+import feedparser
+import pika
 
 
 async def parse(source: Source) -> (str, list):

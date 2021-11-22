@@ -1,12 +1,13 @@
 import os
-from flask import Flask, jsonify
-from flask_sqlalchemy import SQLAlchemy
 import pathlib
+
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 
 basedir = pathlib.Path(__file__).parent
 
 
-class Config(object):
+class Config():
     """
     Config for flask project.
     """

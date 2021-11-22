@@ -62,3 +62,6 @@ test: test_empty test_not_empty
 
 file_access:
 	sudo chmod -R a+w web
+
+pre-commit:
+	sudo pre-commit run --all-files

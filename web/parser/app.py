@@ -1,14 +1,16 @@
 import datetime
-from flask import Flask, jsonify, request, render_template, redirect, flash, session
-from parser.config import db, app
-from .feed_parse import run_parse
-from parser.models import Source, Article
-from parser.forms import NewsForm
-from parser.utils import get_statistics_from_db, reformat_str_data
-from sqlalchemy.exc import IntegrityError, PendingRollbackError
 import json
 from os import listdir
 from os.path import isfile, join
+from parser.config import app, db
+from parser.forms import NewsForm
+from parser.models import Article, Source
+from parser.utils import get_statistics_from_db, reformat_str_data
+
+from flask import flash, redirect, render_template, request, session
+from sqlalchemy.exc import IntegrityError, PendingRollbackError
+
+from .feed_parse import run_parse
 
 
 @app.route("/", methods=["GET", "POST"])

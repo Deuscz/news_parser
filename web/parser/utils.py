@@ -1,5 +1,6 @@
 from datetime import datetime
-from parser.models import Source, Article
+from parser.models import Article, Source
+
 from sqlalchemy import desc
 
 
@@ -18,15 +19,15 @@ def get_statistics_from_db() -> list:
     """Returns statistics from database."""
     db_statistics = []
     for s in Source.query.filter(Source.category.in_(("health", "politics"))).distinct(
-            Source.source_link
+        Source.source_link
     ):
         num_of_health_articles = 0
         num_of_politics_articles = 0
         last_health_date = ""
         last_politics_date = ""
         for source in Source.query.filter(
-                Source.category.in_(("health", "politics")),
-                Source.source_link == s.source_link,
+            Source.category.in_(("health", "politics")),
+            Source.source_link == s.source_link,
         ):
             health_articles = list(
                 Article.query.filter(
@@ -40,12 +41,12 @@ def get_statistics_from_db() -> list:
             )
             if num_of_health_articles == 0 and len(health_articles) != 0:
                 num_of_health_articles = len(health_articles)
-            elif num_of_politics_articles == 0 and len(politics_articles):
+            elif num_of_politics_articles == 0 and len(politics_articles) != 0:
                 num_of_politics_articles = len(politics_articles)
             last_news_date = (
                 Article.query.filter(Article.url_id == source.id)
-                    .order_by(desc(Article.published_date))
-                    .first()
+                .order_by(desc(Article.published_date))
+                .first()
             )
             if last_news_date and source.category == "health":
                 last_health_date = date_to_str(last_news_date.published_date)

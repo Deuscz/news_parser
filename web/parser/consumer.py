@@ -1,12 +1,13 @@
 import datetime
-import pika, sys
-from parser.app import db
-from parser.models import Source, Article
 import json
 import os
-from sqlalchemy.exc import IntegrityError, PendingRollbackError
+import sys
 from multiprocessing import Process
+from parser.app import db
+from parser.models import Article, Source
 
+import pika
+from sqlalchemy.exc import IntegrityError, PendingRollbackError
 
 date_formats = [
     "%a, %d %b %Y %H:%M:%S",
@@ -111,14 +112,12 @@ def main() -> None:
             )
         )
 
-        # execute
         process_list = []
         for sub in subscriber_list:
             process = Process(target=sub.run)
             process.start()
             process_list.append(process)
 
-        # wait for all process to finish
         for process in process_list:
             process.join()
     except KeyboardInterrupt:

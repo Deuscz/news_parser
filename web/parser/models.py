@@ -1,5 +1,5 @@
-from parser.config import db
 import datetime
+from parser.config import db
 
 
 class Source(db.Model):

@@ -1,9 +1,10 @@
+import re
 from parser.app import app
 from parser.config import db
+from parser.models import Source
+
 import pytest
 from flask import Flask
-from parser.models import Source
-import re
 
 
 class TestArticlesView:
@@ -54,13 +55,19 @@ class TestAddNewsViews:
             assert b"Category" in response.data
 
     def test_post_add_news_page(self):
-        app.config['WTF_CSRF_ENABLED'] = False
+        app.config["WTF_CSRF_ENABLED"] = False
         with app.test_client() as test_client:
-            response = test_client.post("/add_news", data={'name': 'News', 'url': 'https://www.google.com/',
-                                                           'source_link': 'https://www.google.com/',
-                                                           'category': 'health'}, )
+            response = test_client.post(
+                "/add_news",
+                data={
+                    "name": "News",
+                    "url": "https://www.google.com/",
+                    "source_link": "https://www.google.com/",
+                    "category": "health",
+                },
+            )
             assert response.status_code == 200
-            source = db.session.query(Source).filter(Source.name == 'News').first()
-            assert source != None
+            source = db.session.query(Source).filter(Source.name == "News").first()
+            assert source is not None
             db.session.delete(source)
             db.session.commit()

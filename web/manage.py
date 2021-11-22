@@ -1,10 +1,10 @@
-from flask.cli import FlaskGroup
-
 from parser import app
 from parser.config import db
-from parser.models import Source
 from parser.consumer import main
-from parser.feed_parse import send_mq, run_parse
+from parser.feed_parse import run_parse
+from parser.models import Source
+
+from flask.cli import FlaskGroup
 
 cli = FlaskGroup(app)
 
@@ -111,11 +111,6 @@ def create_db():
 @cli.command("start_consume")
 def start_consume():
     main()
-
-
-@cli.command("send_consume")
-def send_consume():
-    send_mq()
 
 
 @cli.command("run_parse")
