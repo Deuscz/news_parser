@@ -1,15 +1,20 @@
 import asyncio
 import json
 from parser.models import Source
+from typing import List, Tuple, Union
 
 import aiohttp
 import feedparser
 import pika
 
 
-async def parse(source: Source) -> (str, list):
-    """
-    Parses news RSS feed.
+async def parse(source: Source) -> Tuple[str, List[list]]:
+    """Parse news RSS feed.
+
+    Args:
+        source: news source model
+    Returns:
+        source category and list of articles
     """
     async with aiohttp.ClientSession() as session:
         async with session.get(source.url) as resp:
@@ -22,9 +27,11 @@ async def parse(source: Source) -> (str, list):
     return source.category, result_list
 
 
-def run_parse() -> None:
-    """
-    Starts RSS feed parsing and sends messages to rabbitmq queues.
+def run_async_loop() -> Union:
+    """Create asyncio loop and start parsing
+
+    Returns:
+        group of completed tasks
     """
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -35,6 +42,12 @@ def run_parse() -> None:
     group = asyncio.gather(*tasks, return_exceptions=True)
     loop.run_until_complete(group)
     loop.close()
+    return group
+
+
+def run_parse() -> None:
+    """Start RSS feed parsing and sends messages to rabbitmq queues."""
+    group = run_async_loop()
     sport_list = []
     health_list = []
     politics_list = []
@@ -51,8 +64,11 @@ def run_parse() -> None:
 
 
 def send_mq(queue: str, message: str) -> None:
-    """
-    Establishs connection to rabbitmq queue and sends message.
+    """Establish connection to rabbitmq queue and sends message.
+
+    Args:
+        queue: name of queue
+        message: message to send
     """
     connection = pika.BlockingConnection(pika.ConnectionParameters(host="rabbitmq"))
     channel = connection.channel()

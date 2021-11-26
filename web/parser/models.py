@@ -1,5 +1,6 @@
 import datetime
 from parser.config import db
+from typing import Dict
 
 
 class Source(db.Model):
@@ -27,7 +28,7 @@ class Article(db.Model):
         db.DateTime, default=datetime.datetime.now(), nullable=False
     )
 
-    def as_dict(self):
+    def as_dict(self) -> Dict:
         return {
             "id": self.id,
             "url_id": self.url_id,

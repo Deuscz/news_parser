@@ -1,14 +1,13 @@
 from parser import app
 from parser.config import db
 from parser.consumer import main
-from parser.feed_parse import run_parse
 from parser.models import Source
 
 from flask.cli import FlaskGroup
 
 cli = FlaskGroup(app)
 
-politic_urls = [
+INIT_DATA = {"politics": [  # Init politic sources
     {
         "name": "Euobserver",
         "source_link": "https://euobserver.com/",
@@ -24,8 +23,7 @@ politic_urls = [
         "source_link": "https://reason.com/",
         "url": "https://reason.com/feed/",
     },
-]
-health_urls = [
+], "health": [  # Init health sources
     {
         "name": "Politico",
         "source_link": "https://www.politico.com/",
@@ -41,8 +39,7 @@ health_urls = [
         "source_link": "https://www.healthphreaks.com/",
         "url": "https://www.healthphreaks.com/feed/",
     },
-]
-sport_urls = [
+], "sport": [  # Init sport sources
     {
         "name": "SportingNews",
         "source_link": "https://www.sportingnews.com/",
@@ -63,46 +60,28 @@ sport_urls = [
         "source_link": "https://www.insidesport.in/",
         "url": "https://www.insidesport.in/feed/",
     },
-]
+]}
 
 
 @cli.command("load_init_db")
 def load_init_db():
-    for url in politic_urls:
-        s = Source(
-            url=url["url"],
-            name=url["name"],
-            source_link=url["source_link"],
-            category="politics",
-        )
-        db.session.add(s)
-        db.session.commit()
-    for url in health_urls:
-        s = Source(
-            url=url["url"],
-            name=url["name"],
-            source_link=url["source_link"],
-            category="health",
-        )
-        db.session.add(s)
-        db.session.commit()
-    for url in sport_urls:
-        s = Source(
-            url=url["url"],
-            name=url["name"],
-            source_link=url["source_link"],
-            category="sport",
-        )
-        db.session.add(s)
-        db.session.commit()
+    """Init database sources."""
+    sources = []
+    for category, urls in INIT_DATA.items():
+        for url in urls:
+            sources.append(Source(
+                url=url["url"],
+                name=url["name"],
+                source_link=url["source_link"],
+                category=category,
+            ))
+    db.session.add_all(sources)
+    db.session.commit()
 
 
 @cli.command("create_db")
 def create_db():
-    """
-    Creating database
-    :return:
-    """
+    """Create database tables."""
     db.drop_all()
     db.create_all()
     db.session.commit()
@@ -110,12 +89,8 @@ def create_db():
 
 @cli.command("start_consume")
 def start_consume():
+    """Start script in consumer container."""
     main()
-
-
-@cli.command("run_parse")
-def send_consume():
-    run_parse()
 
 
 if __name__ == "__main__":

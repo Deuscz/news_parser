@@ -4,9 +4,7 @@ from wtforms.validators import URL, DataRequired
 
 
 class NewsForm(FlaskForm):
-    """
-    Form for validating new source of news
-    """
+    """Validate new source of news."""
 
     name = StringField("name", validators=[DataRequired()])
     url = StringField("url", validators=[DataRequired(), URL()])
