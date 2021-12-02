@@ -50,7 +50,7 @@ async def sport_to_json(message: str) -> None:
 
 
 @process_message
-def save_articles_to_db(message: str) -> None:
+async def save_articles_to_db(message: str) -> None:
     """Save health and politics articles to database.
 
     Args:
