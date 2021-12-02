@@ -25,6 +25,7 @@ class TestConfig(Config):
     WTF_CSRF_ENABLED = False
 
 
+# Project configs
 configs = {
     "dev": Config,
     "test": TestConfig,

@@ -1,11 +1,11 @@
 import asyncio
 import json
 from parser.models import Source
-from typing import List, Tuple, Union
+from typing import Dict, List, Tuple, Union
 
+import aio_pika
 import aiohttp
 import feedparser
-import pika
 
 
 async def parse(source: Source) -> Tuple[str, List[list]]:
@@ -28,7 +28,7 @@ async def parse(source: Source) -> Tuple[str, List[list]]:
 
 
 def run_async_loop() -> Union:
-    """Create asyncio loop and start parsing
+    """Create asyncio loop and start parsing.
 
     Returns:
         group of completed tasks
@@ -58,22 +58,38 @@ def run_parse() -> None:
             health_list += article_list
         elif category == "politics":
             politics_list += article_list
-    send_mq("sport", json.dumps(sport_list))
-    send_mq("health", json.dumps(health_list))
-    send_mq("politics", json.dumps(politics_list))
+    send_mq({"sport": json.dumps(sport_list),
+             "health": json.dumps(health_list),
+             "politics": json.dumps(politics_list)})
 
 
-def send_mq(queue: str, message: str) -> None:
+async def main(loop: asyncio.AbstractEventLoop, messages: Dict[str, str]) -> None:
     """Establish connection to rabbitmq queue and sends message.
 
     Args:
-        queue: name of queue
-        message: message to send
+        loop: asyncio event loop
+        messages: messages to send
     """
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host="rabbitmq"))
-    channel = connection.channel()
+    connection = await aio_pika.connect_robust(
+        host="rabbitmq", loop=loop
+    )
 
-    channel.queue_declare(queue=queue, durable="false")
+    async with connection:
+        queue_names = list(messages.keys())
 
-    channel.basic_publish(exchange="", routing_key=queue, body=message)
-    connection.close()
+        channel = await connection.channel()
+        for queue in queue_names:
+            await channel.default_exchange.publish(
+                aio_pika.Message(body=messages[queue].encode()),
+                routing_key=queue)
+
+
+def send_mq(messages: Dict[str, str]) -> None:
+    """Start main event loop with main task.
+
+    Args:
+        messages: messages to send
+    """
+    loop = asyncio.new_event_loop()
+    loop.run_until_complete(main(loop, messages))
+    loop.close()

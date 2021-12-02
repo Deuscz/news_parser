@@ -4,7 +4,7 @@ from typing import Dict
 
 
 class Source(db.Model):
-    """Model that stores urls to resources"""
+    """Model with resources urls."""
 
     id = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.String, unique=True, nullable=False)
@@ -14,7 +14,7 @@ class Source(db.Model):
 
 
 class Article(db.Model):
-    """Model that stores articles information"""
+    """Model with article information."""
 
     id = db.Column(db.Integer, primary_key=True)
     url_id = db.Column(db.Integer, db.ForeignKey("source.id"))

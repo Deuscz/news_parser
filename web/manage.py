@@ -1,13 +1,13 @@
 from parser import app
 from parser.config import db
-from parser.consumer import main
+from parser.consumer import run_consumers
 from parser.models import Source
 
 from flask.cli import FlaskGroup
 
 cli = FlaskGroup(app)
 
-INIT_DATA = {"politics": [  # Init politic sources
+INIT_DATA = {"politics": [  # Initial politic sources
     {
         "name": "Euobserver",
         "source_link": "https://euobserver.com/",
@@ -23,7 +23,7 @@ INIT_DATA = {"politics": [  # Init politic sources
         "source_link": "https://reason.com/",
         "url": "https://reason.com/feed/",
     },
-], "health": [  # Init health sources
+], "health": [  # Initial health sources
     {
         "name": "Politico",
         "source_link": "https://www.politico.com/",
@@ -39,7 +39,7 @@ INIT_DATA = {"politics": [  # Init politic sources
         "source_link": "https://www.healthphreaks.com/",
         "url": "https://www.healthphreaks.com/feed/",
     },
-], "sport": [  # Init sport sources
+], "sport": [  # Initial sport sources
     {
         "name": "SportingNews",
         "source_link": "https://www.sportingnews.com/",
@@ -65,7 +65,7 @@ INIT_DATA = {"politics": [  # Init politic sources
 
 @cli.command("load_init_db")
 def load_init_db():
-    """Init database sources."""
+    """Initial database sources."""
     sources = []
     for category, urls in INIT_DATA.items():
         for url in urls:
@@ -90,7 +90,7 @@ def create_db():
 @cli.command("start_consume")
 def start_consume():
     """Start script in consumer container."""
-    main()
+    run_consumers()
 
 
 if __name__ == "__main__":

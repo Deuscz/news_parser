@@ -19,7 +19,7 @@ def test_client():
 
 
 class TestBase:
-    """Base test class"""
+    """Base test class."""
     url = ''
     data = ''
     HTTP_GET = 200

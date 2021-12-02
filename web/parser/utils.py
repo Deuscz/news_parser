@@ -1,6 +1,5 @@
 import datetime
 import json
-import time
 from os import listdir
 from os.path import isfile, join
 from parser.config import app, db
@@ -46,7 +45,7 @@ def date_to_str(date: datetime.datetime, format_to: str = "%Y-%m-%d") -> str:
 
 
 def get_date_from_feed(date: str) -> datetime.datetime:
-    """Get date from rss article feed string
+    """Get date from rss article feed string.
 
     Args:
         date: date string
@@ -66,12 +65,15 @@ def get_date_from_feed(date: str) -> datetime.datetime:
 
 
 def get_articles_data_from_feed(articles: List) -> List[Article]:
-    """Get articles data from rss feed
-
-    article[0]:news url_id
-    article[1]:news category
-    article[2]:news title
-    article[3]:news published date"""
+    """Get articles data from rss feed.
+    Args:
+        article[0]:news url_id
+        article[1]:news category
+        article[2]:news title
+        article[3]:news published date
+    Returns:
+        list of articles
+    """
     data = []
     for article in articles:
         published_date = get_date_from_feed(article[3])
@@ -260,17 +262,7 @@ def add_new_source(form: NewsForm) -> Dict[str, str]:
         )
         db.session.add(source)
         db.session.commit()
-        return {"massage": "Source was added successfully!", "category": "success"}
+        return {"message": "Source was added successfully!", "category": "success"}
     except (IntegrityError, PendingRollbackError):
         db.session.rollback()
-        return {"massage": "Source is already in database!", "category": "alert"}
-
-
-def time_it(f):
-    def wrapper(*args, **kwargs):
-        time1 = time.time()
-        result = f(*args, **kwargs)
-        print(f"{f.__name__}: {time.time() - time1}")
-        return result
-
-    return wrapper
+        return {"message": "Source is already in database!", "category": "alert"}
