@@ -14,7 +14,7 @@ from .feed_parse import run_parse
 
 
 @app.route("/", methods=["GET"])
-def articles_list_post() -> str:
+def articles_list_get() -> str:
     """Render all articles for today."""
     flash('To start parsing press "Parse Articles"')
     articles, sport_articles = get_today_articles()
@@ -24,7 +24,7 @@ def articles_list_post() -> str:
 
 
 @app.route("/", methods=["POST"])
-def articles_list_get() -> str:
+def articles_list_post() -> str:
     """Run articles parsing."""
     run_parse()
     session.pop("_flashes", None)

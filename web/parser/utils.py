@@ -10,7 +10,7 @@ from typing import Dict, List, Tuple, Union
 from sqlalchemy import desc
 from sqlalchemy.exc import IntegrityError, PendingRollbackError
 
-DATE_FORMATS = [
+DATE_FORMATS = [  # Formats for date parser
     "%a, %d %b %Y %H:%M:%S",
     "%a, %d %B %Y %H:%M:%S",
     "%a %d %b %Y %H:%M:%S",
@@ -19,7 +19,7 @@ DATE_FORMATS = [
 
 
 def reformat_str_data(date: str, format_from: str, format_to: str) -> str:
-    """Rеformat string date to another format.
+    """Reformat string date to another format.
 
     Args:
         date: date string
@@ -101,18 +101,20 @@ def articles_list_by_category(source: Source, category: str) -> List[Article]:
     return list(Article.query.filter(Article.url_id == source.id, Article.category == category))
 
 
-def get_number_of_articles(health_articles: List[Article], politics_articles: List[Article]) -> Tuple[int, int]:
+def get_number_of_articles(health_articles: List[Article], politics_articles: List[Article],
+                           num_of_health_articles: int,
+                           num_of_politics_articles: int) -> Tuple[int, int]:
     """Calculate number of articles in list.
 
     Args:
         health_articles: list of articles with category health
         politics_articles: list of articles with category politics
+        num_of_health_articles: number of health articles
+        num_of_politics_articles: number of politics articles
     Returns:
         tuple of ints with number of articles by category
     """
 
-    num_of_health_articles = 0
-    num_of_politics_articles = 0
     if num_of_health_articles == 0 and len(health_articles) != 0:
         num_of_health_articles = len(health_articles)
     elif num_of_politics_articles == 0 and len(politics_articles) != 0:
@@ -120,16 +122,16 @@ def get_number_of_articles(health_articles: List[Article], politics_articles: Li
     return num_of_health_articles, num_of_politics_articles
 
 
-def get_last_articles_date(source: Source) -> Tuple[str, str]:
+def get_last_articles_date(source: Source, last_health_date: str, last_politics_date: str) -> Tuple[str, str]:
     """Get last articles date by source.
 
     Args:
         source: source of articles
+        last_health_date: last health date string
+        last_politics_date: last politics date string
     Returns:
         tuple of strings with last dates of articles by source
     """
-    last_health_date = ""
-    last_politics_date = ""
     last_news_date = (
         Article.query.filter(Article.url_id == source.id).order_by(desc(Article.published_date)).first()
     )
@@ -151,15 +153,20 @@ def get_statistics_from_db() -> List[Dict]:
     for s in Source.query.filter(Source.category.in_(("health", "politics"))).distinct(
             Source.source_link
     ):
-
+        num_of_health_articles = 0
+        num_of_politics_articles = 0
+        last_health_date = ""
+        last_politics_date = ""
         for source in Source.query.filter(
                 Source.category.in_(("health", "politics")),
                 Source.source_link == s.source_link, ):
             health_articles = articles_list_by_category(source, category="health")
             politics_articles = articles_list_by_category(source, category="politics")
             num_of_health_articles, num_of_politics_articles = get_number_of_articles(health_articles,
-                                                                                      politics_articles)
-            last_health_date, last_politics_date = get_last_articles_date(source)
+                                                                                      politics_articles,
+                                                                                      num_of_health_articles,
+                                                                                      num_of_politics_articles)
+            last_health_date, last_politics_date = get_last_articles_date(source, last_health_date, last_politics_date)
         db_statistics.append(
             {
                 "source_url": s.source_link,

@@ -11,7 +11,6 @@ import pytest
 @pytest.fixture(scope='module')
 def test_client():
     """Create a test client using the Flask application configured for testing."""
-    app.config["WTF_CSRF_ENABLED"] = False
     with app.test_client() as testing_client:
         # Establish an application context
         with app.app_context():
@@ -27,12 +26,14 @@ class TestBase:
 
     @pytest.fixture()
     def get_response(self, test_client):
+        """Simple get response test."""
         response = test_client.get(self.url)
         assert response.status_code == self.HTTP_GET
         return response
 
     @pytest.fixture()
     def post_response(self, test_client):
+        """Simple post response test."""
         response = test_client.post(self.url, data=self.data)
         assert response.status_code == self.HTTP_POST
         return response

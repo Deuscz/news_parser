@@ -45,25 +45,6 @@ services:
         - POSTGRES_DB=flask_postgres
     networks:
         - test_rabbitmq_flask
-  pgadmin:
-    container_name: pgadmin_container
-    image: dpage/pgadmin4:5.7
-    environment:
-      PGADMIN_DEFAULT_EMAIL: "snihyr.roman@gmail.com"
-      PGADMIN_DEFAULT_PASSWORD: "admin"
-      PGADMIN_CONFIG_SERVER_MODE: "False"
-    volumes:
-      - ./pgadmin:/var/lib/pgadmin
-    ports:
-      - "5050:80"
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1G
-    networks:
-      - test_rabbitmq_flask
   consumer:
     build: ./web
     container_name: 'flask_consumer'
