@@ -39,6 +39,7 @@ class TestBase:
         return response
 
 
+
 class TestArticlesView(TestBase):
     """Test articles view."""
     url = "/"

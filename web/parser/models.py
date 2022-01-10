@@ -30,9 +30,10 @@ class Article(db.Model):
 
     def as_dict(self) -> Dict:
         return {
-            "id": self.id,
             "url_id": self.url_id,
             "category": self.category,
             "title": self.title,
             "published_date": self.published_date.strftime("%Y-%m-%d"),
+            "source_name": self.source.name,
+            "url": self.source.source_link
         }

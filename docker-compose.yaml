@@ -6,45 +6,59 @@ services:
     command: python manage.py run -h 0.0.0.0
     restart: on-failure
     environment:
-        - FLASK_APP=parser/app.py
-        - FLASK_ENV=development
-        - DATABASE_URL=postgresql://postgres:postgres@db:5432/flask_postgres
-        - SQL_HOST=db
-        - SQL_PORT=5432
-        - DATABASE=postgres
-        - CONFIG=dev
+      - FLASK_APP=parser/app.py
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/flask_postgres
+      - SQL_HOST=db
+      - SQL_PORT=5432
+      - DATABASE=postgres
+      - CONFIG=dev
     ports:
-        - "5000:5000"
+      - "5000:5000"
     volumes:
-        - ./web:/app
+      - ./web:/app
     networks:
-        - rabbitmq_flask
+      - rabbitmq_flask
     depends_on:
-        - db
+      - db
+  frontend:
+    build: ./frontend
+    container_name: 'frontend_react'
+    command: npm start
+    restart: on-failure
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+    networks:
+      - rabbitmq_flask
+    depends_on:
+      - web
   rabbitmq:
     image: rabbitmq:3-management-alpine
     container_name: 'rabbitmq'
     ports:
-        - 5672:5672
-        - 15672:15672
+      - "5672:5672"
+      - "15672:15672"
     volumes:
-        - ./rabbitmq/data/:/var/lib/rabbitmq/
-        - ./rabbitmq/log/:/var/log/rabbitmq/
+      - ./rabbitmq/data/:/var/lib/rabbitmq/
+      - ./rabbitmq/log/:/var/log/rabbitmq/
+      - ./rabbitmq:/var/lib/rabbitmq/mnesia
     networks:
-        - rabbitmq_flask
+      - rabbitmq_flask
   db:
     image: postgres:latest
     container_name: 'postgres_db'
     expose:
-        - "5432"
+      - "5432"
     volumes:
-        - postgres_db:/var/lib/postgresql/data/
+      - postgres_db:/var/lib/postgresql/data/
     environment:
-        - POSTGRES_USER=postgres
-        - POSTGRES_PASSWORD=postgres
-        - POSTGRES_DB=flask_postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=flask_postgres
     networks:
-        - rabbitmq_flask
+      - rabbitmq_flask
   pgadmin:
     container_name: pgadmin_container
     image: dpage/pgadmin4:5.7
@@ -70,21 +84,21 @@ services:
     command: python manage.py start_consume
     restart: on-failure
     environment:
-        - FLASK_APP=parser/app.py
-        - FLASK_ENV=development
-        - DATABASE_URL=postgresql://postgres:postgres@db:5432/flask_postgres
-        - SQL_HOST=db
-        - SQL_PORT=5432
-        - DATABASE=postgres
+      - FLASK_APP=parser/app.py
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/flask_postgres
+      - SQL_HOST=db
+      - SQL_PORT=5432
+      - DATABASE=postgres
     volumes:
-        - ./web:/app
+      - ./web:/app
     networks:
-        - rabbitmq_flask
+      - rabbitmq_flask
     links:
-        - rabbitmq
+      - rabbitmq
     depends_on:
-        - db
-        - rabbitmq
+      - db
+      - rabbitmq
 networks:
   rabbitmq_flask:
     driver: bridge

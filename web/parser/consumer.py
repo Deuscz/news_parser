@@ -58,7 +58,7 @@ async def save_articles_to_db(message: str) -> None:
     """
     articles = json.loads(message)
     articles = [article for article in articles if
-                Article.query.filter_by(title=article[2]).first() is None and article[3] and article[2]]
+                Article.query.filter_by(title=article[2]).first() is None and article[3] and article[2] and len([a for a in articles if a[2]==article[2]])==1]
     if articles:
         articles_to_commit = [Article(url_id=article[0],  # article[0]: uld_id
                                       category=article[1],  # article[1]: category

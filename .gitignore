@@ -1,0 +1,6 @@
+web/sport_files/
+web/error.log
+web/.pytest_cache/
+pgadmin/
+rabbitmq/
+.idea/

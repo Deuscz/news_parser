@@ -58,3 +58,55 @@ def add_news_post() -> Tuple[Any, int]:
         flash(flash_message['message'], category=flash_message['category'])
         return render_template("add_news.html", form=form), 201
     return render_template("add_news.html", form=form)
+
+
+# API
+
+@app.route("/api/v1/articles-list", methods=["GET"])
+def api_articles_list_get() -> dict:
+    """Render all articles for today."""
+    flash('To start parsing press "Parse Articles"')
+    articles, sport_articles = get_today_articles()
+    return {
+        "articles": list(map(lambda article: article.as_dict(), articles)),
+        "sport_articles": list(sport_articles)
+    }
+
+
+@app.route("/api/v1/articles-list", methods=["POST"])
+def api_articles_list_post() -> dict:
+    """Run articles parsing."""
+    run_parse()
+    return {"message": "Start parsing"}
+
+
+@app.route("/api/v1/statistics", methods=["GET"])
+def api_statistics() -> dict:
+    """Render source news statistics."""
+    db_statistics = get_statistics_from_db()
+    file_statistics = get_statistics_from_files()
+    return {
+        "db_statistics": db_statistics,
+        "file_statistics": file_statistics
+    }
+
+
+@app.route("/api/v1/add_news", methods=["POST"])
+def api_add_news() -> dict:
+    """Get news source form."""
+    form = NewsForm(
+        name = request.json['name'],
+        url = request.json['url'],
+        source_link = request.json['source_link'],
+        category = request.json['category'],
+        )
+    if form.validate():
+        add_new_source(form)
+        return {"message": "Form successfully submited!",
+                "status": "OK"}
+    return {"message": "Form has errors!",
+            "status": "FAILED",
+            "errors": {
+                err[0]:err[1] for err in form.errors.items()
+            }}
+            

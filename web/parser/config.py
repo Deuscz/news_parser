@@ -15,7 +15,7 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite://")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = "secret_key"
-    WTF_CSRF_ENABLED = True
+    WTF_CSRF_ENABLED = False
     DEBUG = True
 
 
