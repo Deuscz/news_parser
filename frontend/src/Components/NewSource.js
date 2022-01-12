@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { startSubmit } from '../Actions'
-import { Table, Form, input, label, Alert } from "react-bootstrap";
+import { Alert, Button, TextField, FormControl, Paper, Select, MenuItem, Box, InputLabel, Grid } from '@mui/material';
 import { CATEGORIES } from '../Constants';
 
 
@@ -22,43 +22,59 @@ export function NewSource(props) {
 
 
 
-    return (<div style={{ margin: 5 }}>
-            {status=="SUCCEDED" ? <Alert variant="success">Form was submited successfully!</Alert>: null}
-            {status=="FAILED" ? <Alert variant="danger">Form has some errors!</Alert>: null}
-            {status=="OK" ? <Alert variant="info">Use this form to add news source!</Alert>: null}
-        <Form onSubmit={onSubmitHandler}>
-            <div class="form-group mb-2">
-                <label>Name of source</label>
-                <input type="text" className="form-control" name="name" placeholder="name" required="True"></input>
-                {(errors.name !== undefined) ? <Alert variant="danger" id='errors'>{errors.name}</Alert> : null }
-            </div>
-            <div class="form-group mb-2">
-                <label>Link to RSS feed</label>
-                <input type="text" className="form-control" name="url" placeholder="link" required="True"></input>
-                {(errors.url !== undefined)? <Alert variant="danger" id='errors'>{errors.url}</Alert> : null }
-            </div>
-            <div class="form-group mb-2">
-                <label>Link to source</label>
-                <input type="text" className="form-control" name="source_link" placeholder="source link" required="True"></input>
-                {(errors.source_link !== undefined) ? <Alert variant="danger" id='errors'>{errors.source_link}</Alert> : null }
-            </div>
-            <div class="form-group mb-2">
-                <label>Category</label>
-                <select className="form-control" name="category">
-                    {CATEGORIES.map((category, index) => {
-                        return <CategoryComponent category={category} key={index} />
-                    })}
-                </select>
-                {(errors.category !== undefined) ? <Alert variant="danger" id='errors'>{errors.category}</Alert> : null }
-            </div>
-            <button type="submit" className="btn btn-primary mb-2">Confirm</button>
-        </Form>
-    </div>);
+    return (<Paper sx={{ width: '99%', margin: '10px' }}>
+        {status == "SUCCEDED" ? <Alert severity="success">Form was submited successfully!</Alert> : null}
+        {status == "FAILED" ? <Alert severity="error">Form has some errors!</Alert> : null}
+        {status == "OK" ? <Alert severity="info">Use this form to add news source!</Alert> : null}
+        <FormControl fullWidth sx={{ m: 2 }}>
+            <form onSubmit={onSubmitHandler}>
+                <Grid container>
+                    <TextField required label="Source name" name="name" placeholder="name" sx={{ m: 2 }}></TextField>
+                    {(errors.name !== undefined) ? <Alert sx={{ m: 2, width: 600 }} severity="error" id='errors'>{errors.name}</Alert> : null}
+                </Grid>
+                <Grid container>
+                    <TextField required label="Link to source" name="url" placeholder="link" sx={{ m: 2 }}></TextField>
+                    {(errors.url !== undefined) ? <Alert sx={{ m: 2, width: 600 }} severity="error" id='errors'>{errors.url}</Alert> : null}
+
+                </Grid>
+                <Grid container>
+                    <TextField required label="Link to rss feed" name="source_link" placeholder="source link" sx={{ m: 2 }}></TextField>
+                    {(errors.source_link !== undefined) ? <Alert sx={{ m: 2, width: 600 }} severity="error" id='errors'>{errors.source_link}</Alert> : null}
+                </Grid>
+
+                <Grid container>
+                    <CategoryComponent />
+                    {(errors.category !== undefined) ? <Alert sx={{ m: 2, width: 600 }} severity="error" id='errors'>{errors.category}</Alert> : null}
+                </Grid>
+                <Button sx={{ m: 2, width: 200}} type='submit' variant="outlined">Confirm</Button>
+            </form>
+        </FormControl>
+    </Paper>);
 }
 
 
-function CategoryComponent({ category }) {
+function CategoryComponent() {
+    const [category, setCategory] = React.useState('');
+
+    const handleChange = (event) => {
+        setCategory(event.target.value);
+    };
     return (
-        <option>{category}</option>
-    )
+        <Box sx={{ minWidth: 120, m: 2, width: 600 }}>
+            <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">Category</InputLabel>
+                <Select
+                    labelId="category"
+                    name="category"
+                    value={category}
+                    label="Age"
+                    onChange={handleChange}
+                >
+                    {CATEGORIES.map((category) => {
+                        return <MenuItem value={category}>{category}</MenuItem>
+                    })}
+                </Select>
+            </FormControl>
+        </Box>
+    );
 }

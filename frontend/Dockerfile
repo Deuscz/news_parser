@@ -11,6 +11,7 @@ COPY package.json ./
 COPY package-lock.json ./
 RUN npm install -g --silent
 RUN npm install react-scripts@5.0.0 -g --silent
+RUN npm install -g serve
 
 # add app
 COPY . ./

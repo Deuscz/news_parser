@@ -25,6 +25,7 @@ services:
     build: ./frontend
     container_name: 'frontend_react'
     command: npm start
+    # command: sh -c "npm run build && serve -s build"
     restart: on-failure
     volumes:
       - ./frontend:/app

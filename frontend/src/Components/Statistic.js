@@ -1,8 +1,8 @@
 import React, {useEffect} from 'react';
 import {useSelector, useDispatch} from 'react-redux';
 import {loadStatistics} from '../Actions'
-import {Table} from "react-bootstrap";
-
+import { Table, Paper, TableHead, TableBody, TableRow, TableCell, Alert, Tab } from '@mui/material';
+import { StyledTableCell, StyledTableRow } from './Tables';
 
 export function Statistics(props) {
     const statistics = useSelector(state => state.statisticsReducer.statistics);
@@ -27,37 +27,37 @@ export function Statistics(props) {
     }
     if (typeof dbStatistics !== 'undefined' || typeof sportArticlesRecords !== 'undefined') {
         return (<>
-                <div style={{margin: 5}}>
+                <Paper sx={{ width: '99%', overflow: 'hidden', margin: '10px' }}>
                     <div><h3>Database sources statistics</h3></div>
                     <Table variant="striped">
-                        <thead>
-                        <tr>
-                            <th scope="col">URL</th>
-                            <th scope="col">Health articles</th>
-                            <th scope="col">Politics articles</th>
-                            <th scope="col">Last news date</th>
-                        </tr>
-                        </thead>
-                        <tbody>
+                        <TableHead>
+                        <TableRow sx={{}}>
+                            <StyledTableCell scope="col">URL</StyledTableCell>
+                            <StyledTableCell scope="col">Health articles</StyledTableCell>
+                            <StyledTableCell scope="col">Politics articles</StyledTableCell>
+                            <StyledTableCell scope="col">Last news date</StyledTableCell>
+                        </TableRow>
+                        </TableHead>
+                        <TableBody>
                         {dbStatistics}
-                        </tbody>
+                        </TableBody>
                     </Table>
-                    <h3>{"There is no records in database" ? !dbStatistics : ""}</h3>
+                    <h3>{!dbStatistics ? <Alert severity="info">There is no records in database</Alert> : ""}</h3>
                     <div><h3>Sport files statistics</h3></div>
                     <Table>
-                        <thead>
-                        <tr>
-                            <th scope="col">Number of files</th>
-                            <th scope="col">Start Date</th>
-                            <th scope="col">End Date</th>
-                        </tr>
-                        </thead>
-                        <tbody>
+                        <TableHead>
+                        <TableRow>
+                            <StyledTableCell scope="col">Number of files</StyledTableCell>
+                            <StyledTableCell scope="col">Start Date</StyledTableCell>
+                            <StyledTableCell scope="col">End Date</StyledTableCell>
+                        </TableRow>
+                        </TableHead>
+                        <TableBody>
                         {sportArticlesRecords}
-                        </tbody>
+                        </TableBody>
                     </Table>
-                    <h3>{"There is no records in files" ? !sportArticlesRecords : ""}</h3>
-                </div>
+                    <h3>{!sportArticlesRecords ? <Alert severity="info">There is no records in files</Alert> : ""}</h3>
+                </Paper>
             </>
         );
     } else {
@@ -68,22 +68,22 @@ export function Statistics(props) {
 
 function DbStatisticComponent({statistic, history}) {
     return (
-        <tr>
-            <td>{statistic.source_url}</td>
-            <td>{statistic.health_articles}</td>
-            <td>{statistic.politics_articles}</td>
-            <td>{statistic.last_news_date}</td>
-        </tr>
+        <StyledTableRow>
+            <StyledTableCell>{statistic.source_url}</StyledTableCell>
+            <StyledTableCell>{statistic.health_articles}</StyledTableCell>
+            <StyledTableCell>{statistic.politics_articles}</StyledTableCell>
+            <StyledTableCell>{statistic.last_news_date}</StyledTableCell>
+        </StyledTableRow>
     );
 }
 
 function FileStatisticComponent({statistic, history}) {
     return (
-        <tr>
-            <td>{statistic.number_of_files}</td>
-            <td>{statistic.min_date}</td>
-            <td>{statistic.max_date}</td>
-        </tr>
+        <StyledTableRow>
+            <StyledTableCell>{statistic.number_of_files}</StyledTableCell>
+            <StyledTableCell>{statistic.min_date}</StyledTableCell>
+            <StyledTableCell>{statistic.max_date}</StyledTableCell>
+        </StyledTableRow>
 
     );
 }

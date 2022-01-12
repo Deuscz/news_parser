@@ -103,6 +103,7 @@ function* fetchStartParsingAsync() {
             }).then(res => res.json())
         });
         yield put(stopParsingSuccess());
+        yield put(loadArticles());
     } catch (error) {
         yield put(stopParsingFail());
     }

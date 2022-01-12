@@ -1,15 +1,14 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { loadArticles, startParsing } from '../Actions'
-import { Button, Row, Col, Table } from "react-bootstrap";
-
-
+import { loadArticles, startParsing } from '../Actions';
+import { Table, TableHead, TableBody, TableRow, Alert, Paper, Button, ButtonGroup, } from '@mui/material';
+import { StyledTableCell, StyledTableRow } from './Tables';
 export function Articles(props) {
     const articles = useSelector(state => state.articlesReducer.articles);
     const loading = useSelector(state => state.parsingReducer.loading);
     const dispatch = useDispatch();
-    let articlesRecords, sportArticlesRecords;
-    let ifparsing = loading ? "Loading new articles..." : "";
+    let articlesRecords, sportArticlesRecords, component;
+    let ifparsing = (loading && (articles.articles || articles.sport_articles)) ? <Alert severity="info">Loading new articles...</Alert> : <Alert severity="success">Articles were successfully loaded!</Alert>;
     let loadData = () => {
         dispatch(loadArticles());
     }
@@ -26,58 +25,73 @@ export function Articles(props) {
             return <SportArticleComponent article={article} key={index} />
         });
     }
-    if (typeof articlesRecords !== 'undefined' || typeof sportArticlesRecords !== 'undefined') {
-        return (<>
-            <Row>
-                <Button as={Col} variant="primary" onClick={() => dispatch(startParsing())}>Parse Articles</Button>
-                <Button as={Col} variant="info" onClick={() => dispatch(loadArticles())}>Refresh News</Button>
-            </Row>
-            <h3>{ifparsing}</h3>
-            <div>
-                <Table className="table table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">Name, url</th>
-                            <th scope="col">Category</th>
-                            <th scope="col">Title</th>
-                            <th scope="col">Published</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+    let check = (articles.sport_articles != undefined) || (articles.articles != undefined) ? ((articles.sport_articles.length != 0) || (articles.articles.length != 0)) : false;
+    if (check) {
+        component = (<>
+            <Paper sx={{ width: '99%', margin: '10px' }}>
+                <ButtonsComponent />
+                <h3>{ifparsing}</h3>
+                <Table stickyHeader aria-label="sticky table" >
+                    <TableHead sx={{ backgroundColor: 'red' }}>
+                        <TableRow>
+                            <StyledTableCell scope="col">Name, url</StyledTableCell>
+                            <StyledTableCell scope="col">Category</StyledTableCell>
+                            <StyledTableCell scope="col">Title</StyledTableCell>
+                            <StyledTableCell scope="col">Published</StyledTableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
                         {articlesRecords}
                         {sportArticlesRecords}
-                    </tbody>
+                    </TableBody>
                 </Table>
-            </div>
-            <h3>{!(articlesRecords || sportArticlesRecords) ? "There are no articles for today yet" : ""}</h3>
+            </Paper>
         </>
         );
     } else {
-        return (<div style={{ width: 300, height: 300, padding: 20 }}>Loading...</div>);
+        component = (<>
+            <Paper sx={{ width: '99%', margin: '10px' }}>
+                <ButtonsComponent />
+                <h3>{ifparsing}</h3>
+                <div style={{ width: 300, height: 300, padding: 20 }}>There are no articles for today yet</div>
+            </Paper>
+        </>);
     }
+
+    return component;
 }
 
 
 function SportArticleComponent({ article }) {
     return (
-        <tr>
-            <td><a href={article.url}>{article.source_name}</a></td>
-            <td>{article.category}</td>
-            <td>{article.title}</td>
-            <td>{article.published_date}</td>
-        </tr>
+        <StyledTableRow>
+            <StyledTableCell><a href={article.url}>{article.source_name}</a></StyledTableCell>
+            <StyledTableCell>{article.category}</StyledTableCell>
+            <StyledTableCell>{article.title}</StyledTableCell>
+            <StyledTableCell>{article.published_date}</StyledTableCell>
+        </StyledTableRow>
 
     );
 }
 
 function ArticleComponent({ article }) {
     return (
-        <tr>
-            <td><a href={article.url}>{article.source_name}</a></td>
-            <td>{article.category}</td>
-            <td>{article.title}</td>
-            <td>{article.published_date}</td>
-        </tr>
+        <StyledTableRow>
+            <StyledTableCell><a href={article.url}>{article.source_name}</a></StyledTableCell>
+            <StyledTableCell>{article.category}</StyledTableCell>
+            <StyledTableCell>{article.title}</StyledTableCell>
+            <StyledTableCell>{article.published_date}</StyledTableCell>
+        </StyledTableRow>
 
     );
+}
+
+function ButtonsComponent() {
+    const dispatch = useDispatch();
+    return (
+        <ButtonGroup variant="contained" aria-label="outlined">
+            <Button color="info" size="medium" onClick={() => dispatch(startParsing())}>Parse Articles</Button>
+            <Button color="success" onClick={() => dispatch(loadArticles())}>Refresh News</Button>
+        </ButtonGroup>
+    )
 }
