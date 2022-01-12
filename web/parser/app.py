@@ -6,7 +6,7 @@ from parser.utils import (
     get_statistics_from_files,
     get_today_articles,
 )
-from typing import Any, Tuple
+from typing import Any, Dict, Tuple, Union
 
 from flask import flash, redirect, render_template, request, session
 
@@ -74,10 +74,10 @@ def api_articles_list_get() -> dict:
 
 
 @app.route("/api/v1/articles-list", methods=["POST"])
-def api_articles_list_post() -> dict:
+def api_articles_list_post() -> Tuple[Dict[str, str], int]:
     """Run articles parsing."""
     run_parse()
-    return {"message": "Start parsing"}
+    return {"message": "Start parsing"}, 201
 
 
 @app.route("/api/v1/statistics", methods=["GET"])
@@ -92,21 +92,20 @@ def api_statistics() -> dict:
 
 
 @app.route("/api/v1/add_news", methods=["POST"])
-def api_add_news() -> dict:
+def api_add_news() -> Tuple[Dict[str, Union[str, dict]], int]:
     """Get news source form."""
     form = NewsForm(
-        name = request.json['name'],
-        url = request.json['url'],
-        source_link = request.json['source_link'],
-        category = request.json['category'],
-        )
+        name=request.json['name'],
+        url=request.json['url'],
+        source_link=request.json['source_link'],
+        category=request.json['category'],
+    )
     if form.validate():
         add_new_source(form)
         return {"message": "Form successfully submited!",
-                "status": "OK"}
+                "status": "OK"}, 201
     return {"message": "Form has errors!",
             "status": "FAILED",
             "errors": {
-                err[0]:err[1] for err in form.errors.items()
-            }}
-            
+                err[0]: err[1] for err in form.errors.items()
+            }}, 204

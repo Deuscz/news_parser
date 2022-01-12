@@ -21,6 +21,7 @@ class TestBase:
     """Base test class."""
     url = ''
     data = ''
+    json = ''
     HTTP_GET = 200
     HTTP_POST = 201
 
@@ -38,6 +39,12 @@ class TestBase:
         assert response.status_code == self.HTTP_POST
         return response
 
+    @pytest.fixture()
+    def post_json_response(self, test_client):
+        """Simple post response test."""
+        response = test_client.post(self.url, json=self.json)
+        assert response.status_code == self.HTTP_POST
+        return response
 
 
 class TestArticlesView(TestBase):
@@ -83,3 +90,32 @@ class TestAddNewsViews(TestBase):
         assert source is not None
         db.session.delete(source)
         db.session.commit()
+
+
+class TestArticlesApiView(TestBase):
+    """Test articles api view."""
+    url = "/api/v1/articles-list"
+
+    def test_get_articles(self, get_response):
+        assert b'articles' in get_response.data
+
+
+class TestStatisticsApiView(TestBase):
+    """Test statistic api view."""
+    url = "/api/v1/statistics"
+
+    def test_get_statistics(self, get_response):
+        assert b'db_statistics' in get_response.data
+        assert b'file_statistics' in get_response.data
+
+
+class TestAddNewsApiView(TestBase):
+    """Test add news api view."""
+    url = "/api/v1/add_news"
+    json = {"name": "News1",
+            "url": "https://www.google.com/1",
+            "source_link": "https://www.google.com/1",
+            "category": "politics", }
+
+    def test_api_add_news(self, post_json_response):
+        assert b'"status": "OK"' in post_json_response.data
