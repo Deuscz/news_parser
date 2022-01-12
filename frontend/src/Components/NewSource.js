@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { startSubmit } from '../Actions'
 import { Alert, Button, TextField, FormControl, Paper, Select, MenuItem, Box, InputLabel, Grid } from '@mui/material';
@@ -23,9 +23,9 @@ export function NewSource(props) {
 
 
     return (<Paper sx={{ width: '99%', margin: '10px' }}>
-        {status == "SUCCEDED" ? <Alert severity="success">Form was submited successfully!</Alert> : null}
-        {status == "FAILED" ? <Alert severity="error">Form has some errors!</Alert> : null}
-        {status == "OK" ? <Alert severity="info">Use this form to add news source!</Alert> : null}
+        {status === "SUCCEDED" ? <Alert severity="success">Form was submited successfully!</Alert> : null}
+        {status === "FAILED" ? <Alert severity="error">Form has some errors!</Alert> : null}
+        {status === "OK" ? <Alert severity="info">Use this form to add news source!</Alert> : null}
         <FormControl fullWidth sx={{ m: 2 }}>
             <form onSubmit={onSubmitHandler}>
                 <Grid container>
@@ -46,14 +46,14 @@ export function NewSource(props) {
                     <CategoryComponent />
                     {(errors.category !== undefined) ? <Alert sx={{ m: 2, width: 600 }} severity="error" id='errors'>{errors.category}</Alert> : null}
                 </Grid>
-                <Button sx={{ m: 2, width: 200}} type='submit' variant="outlined">Confirm</Button>
+                <Button sx={{ m: 2, width: 200 }} type='submit' variant="outlined">Confirm</Button>
             </form>
         </FormControl>
     </Paper>);
 }
 
 
-function CategoryComponent() {
+export function CategoryComponent() {
     const [category, setCategory] = React.useState('');
 
     const handleChange = (event) => {
@@ -67,11 +67,10 @@ function CategoryComponent() {
                     labelId="category"
                     name="category"
                     value={category}
-                    label="Age"
                     onChange={handleChange}
                 >
-                    {CATEGORIES.map((category) => {
-                        return <MenuItem value={category}>{category}</MenuItem>
+                    {CATEGORIES.map((category, index) => {
+                        return <MenuItem value={category} key={index}>{category}</MenuItem>
                     })}
                 </Select>
             </FormControl>

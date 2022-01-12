@@ -54,6 +54,7 @@ test:
 	sudo docker exec -it flask_app pytest parser/tests.py -v -m empty
 	sudo sleep 5
 	sudo docker exec -it flask_app pytest parser/tests.py -v -m "not empty"
+	sudo docker exec -it frontend_react npm test
 	sudo docker stop test_postgres_db
 
 file_access:
