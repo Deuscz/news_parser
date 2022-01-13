@@ -7,7 +7,7 @@ services:
     restart: on-failure
     environment:
       - FLASK_APP=parser/app.py
-      - FLASK_ENV=development
+      - FLASK_ENV=production
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/flask_postgres
       - SQL_HOST=db
       - SQL_PORT=5432
@@ -22,10 +22,9 @@ services:
     depends_on:
       - db
   frontend:
-    image: news_parser_frontend
+    image: frontend_production
     build: ./frontend
     container_name: 'frontend_react'
-    command: npm start
     restart: on-failure
     volumes:
       - ./frontend:/app

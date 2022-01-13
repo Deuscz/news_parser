@@ -71,6 +71,7 @@ function* fetchArticlesAsync() {
         });
         yield put(loadArticlesSuccess(data));
     } catch (error) {
+        console.log(error)
         yield put(loadArticlesError());
     }
 }
@@ -87,6 +88,7 @@ function* fetchStatisticsAsync() {
         });
         yield put(loadStatisticsSuccess(data));
     } catch (error) {
+        console.log(error)
         yield put(loadStatisticsError());
     }
 }
@@ -105,6 +107,7 @@ function* fetchStartParsingAsync() {
         yield put(stopParsingSuccess());
         yield put(loadArticles());
     } catch (error) {
+        console.log(error)
         yield put(stopParsingFail());
     }
 }
@@ -121,7 +124,6 @@ function* submitFormAsync(data) {
                 body: JSON.stringify(data.payload)
             }).then(res => res.json())
         });
-        console.log(result);
         if (result.errors){
             yield put(stopSubmit(result));
         }else{

@@ -1,6 +1,9 @@
 run:
 	sudo docker-compose up
 
+run-prod:
+	sudo docker-compose -f docker-compose-production.yaml up
+
 
 rund:
 	sudo docker-compose up -d

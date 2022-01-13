@@ -1,11 +1,11 @@
-import logging
+# import logging
 import os
 import pathlib
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-logging.basicConfig(filename='error.log', level=logging.ERROR)
+# logging.basicConfig(filename='error.log', level=logging.ERROR)
 basedir = pathlib.Path(__file__).parent
 
 

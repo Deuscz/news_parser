@@ -17,7 +17,7 @@ afterEach(() => {
 
 
 
-it("renders sport article", () => {
+it("renders article", () => {
     act(() => {
         const testArticle = {
             url: "https://www.google.com/",
